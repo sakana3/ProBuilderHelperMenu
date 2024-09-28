@@ -156,7 +156,15 @@ namespace UnityEditor.ProBuilder
                             var rect = new Rect(w * x, vPos + y * containsHeight, w, containsHeight);
                             GUI.enabled = action.enabled;
                             //                                        && !action.hidden;
-                            if( GUI.Button(rect, action.menuTitle) )
+
+                            var tooltip = action.tooltip.summary;
+                            if( string.IsNullOrEmpty(action.tooltip.shortcut) is false )
+                            {
+                                tooltip += $"\n{action.tooltip.shortcut}";
+                            }
+                            var contents = new GUIContent(action.menuTitle, tooltip);
+
+                            if ( GUI.Button(rect, contents) )
                             {
                                 PopulateAction(action);
                             }
@@ -169,7 +177,7 @@ namespace UnityEditor.ProBuilder
         }
 
 
-        public void OnGUI2()
+        private void _OnGUI_()
         {
             if (menuActions == null) return;
 
