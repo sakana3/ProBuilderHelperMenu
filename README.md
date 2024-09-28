@@ -1,6 +1,6 @@
 # ProBuilderHelperMenu
 
-Quick menu asset for ProBuilder6.0
+This is a replacement script for the tool window that was discontinued in ProBuilder 6.0.
 
 # How to Install
 
