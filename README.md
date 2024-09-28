@@ -4,7 +4,7 @@ Quick menu asset for ProBuilder6.0
 
 # How to Install
 
-- Please install it at the following address from the package manager
+- Enter the following address from the package manager and install it
 
 https://github.com/sakana3/ProBuilderHelperMenu.git?path=package
 
