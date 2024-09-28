@@ -1,0 +1,10 @@
+{
+  "name": "com.sakana3.probuilderhelpermenu",
+  "displayName": "ProBuilderHelperMenu",
+  "version": "0.1.0",
+  "unity": "6000.0",
+  "description": "For all ProBuilder user",
+  "author": {
+    "name": "sakana3"
+  }
+}

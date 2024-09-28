@@ -1,0 +1,20 @@
+{
+    "name": "Unity.ProBuilder.ProBuilderHelper",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1826c0224c0d048b88112c79bbb0cd85",
+        "GUID:03ca3ee4acaf74592bc6d299ca86aa27",
+        "GUID:9caa7e155cb0648da84dca829b17620f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
