@@ -11,6 +11,7 @@ using UnityEditor.Actions;
 using UnityEngine.UIElements;
 using System.Drawing.Printing;
 using PlasticPipe.PlasticProtocol.Messages;
+using System.IO;
 
 namespace UnityEditor.ProBuilder
 {
@@ -22,9 +23,16 @@ namespace UnityEditor.ProBuilder
         {
             var window = GetWindow<ProBuilderHelperMenu>();
             window.titleContent = new GUIContent("ProBuilderHelperMenu");
+
         }
 
-        protected List<UnityEditor.ProBuilder.MenuAction> menuActions;
+        protected struct MenuActionContent
+        {
+            public UnityEditor.ProBuilder.MenuAction action;
+            public GUIContent content;
+        }
+
+        protected List<MenuActionContent> menuActions;
         protected Vector2 scrollPosition = Vector2.zero;
         protected bool[] folds;
         protected bool showAllActionMenu;
@@ -36,16 +44,36 @@ namespace UnityEditor.ProBuilder
             menu.AddItem(content, showAllActionMenu, ()=> showAllActionMenu = !showAllActionMenu);
         }
 
+//        Texture texture;
+
         protected void OnEnable()
         {
+//            texture = AssetDatabase.LoadAssetAtPath<Texture>("Packages/com.unity.probuilder/Content/Icons/Cursors/cutCursor.png");
+
             if (menuActions == null)
             {
+                menuActions = new List<MenuActionContent>();
                 var EditorToolbarLoaderType = System.Type.GetType("UnityEditor.ProBuilder.EditorToolbarLoader,Unity.ProBuilder.Editor");
 
                 var getActionFunc = EditorToolbarLoaderType.GetMethod("GetActions", BindingFlags.Static | BindingFlags.NonPublic);
 
-                menuActions = (List<UnityEditor.ProBuilder.MenuAction>)getActionFunc.Invoke(null, new object[] { true });
-                menuActions = menuActions.OrderBy(a => a.toolbarPriority).ToList();
+                var actions = (List<UnityEditor.ProBuilder.MenuAction>)getActionFunc.Invoke(null, new object[] { true });
+                actions = actions.OrderBy(a => a.toolbarPriority).ToList();
+                foreach (var action in actions)
+                {
+                    var tooltip = action.tooltip.summary;
+                    if (string.IsNullOrEmpty(action.tooltip.shortcut) is false)
+                    {
+                        tooltip += $"\n{action.tooltip.shortcut}";
+                    }
+                    MenuActionContent content = new MenuActionContent()
+                    {
+                        action = action,
+                        content = new GUIContent(action.menuTitle, tooltip),
+                    };
+                    this.menuActions.Add(content);
+                }
+
 
                 UnityEditor.ProBuilder.ProBuilderEditor.selectionUpdated += (x) => Refresh();
                 UnityEditor.ProBuilder.ProBuilderEditor.selectModeChanged += (x) => Refresh();
@@ -144,7 +172,7 @@ namespace UnityEditor.ProBuilder
                     int count = 0;
                     foreach (var action in menuActions)
                     {
-                        var disp = action.group == group;
+                        var disp = action.action.group == group;
 
                         disp = disp & !k_ContextMenuBlacklist.Contains(action.GetType());
 
@@ -154,19 +182,11 @@ namespace UnityEditor.ProBuilder
                             var y = count / buttonHorizontalCount;
                             var w = initPos.width / buttonHorizontalCount;
                             var rect = new Rect(w * x, vPos + y * containsHeight, w, containsHeight);
-                            GUI.enabled = action.enabled;
-                            //                                        && !action.hidden;
+                            GUI.enabled = action.action.enabled;
 
-                            var tooltip = action.tooltip.summary;
-                            if( string.IsNullOrEmpty(action.tooltip.shortcut) is false )
+                            if ( GUI.Button(rect, action.content) )
                             {
-                                tooltip += $"\n{action.tooltip.shortcut}";
-                            }
-                            var contents = new GUIContent(action.menuTitle, tooltip);
-
-                            if ( GUI.Button(rect, contents) )
-                            {
-                                PopulateAction(action);
+                                PopulateAction(action.action);
                             }
                             count++;
                         }
@@ -176,70 +196,5 @@ namespace UnityEditor.ProBuilder
             }
         }
 
-
-        private void _OnGUI_()
-        {
-            if (menuActions == null) return;
-
-            using (new GUILayout.VerticalScope("box"))
-            {
-                using (new GUILayout.HorizontalScope())
-                {
-                    GUILayout.Label($"Total Vertex");
-                    GUILayout.FlexibleSpace();
-                    GUILayout.Label($"{MeshSelection.totalVertexCount}");
-                }
-                using (new GUILayout.HorizontalScope())
-                {
-                    GUILayout.Label($"Total Face");
-                    GUILayout.FlexibleSpace();
-                    GUILayout.Label($"{MeshSelection.totalFaceCount}");
-                }
-            }
-
-            using ( var scroll = new GUILayout.ScrollViewScope(scrollPosition))
-            {
-                scrollPosition = scroll.scrollPosition;
-                foreach (var group in Enum.GetValues(typeof(ToolbarGroup)).Cast<ToolbarGroup>())
-                {
-                    GUI.enabled = true;
-
-                    folds[(int)group] = EditorGUILayout.Foldout(folds[(int)group] , group.ToString() );
-
-                    if (folds[(int)group])
-                    {
-                        foreach (var action in menuActions)
-                        {
-                            var disp = action.group == group;
-
-                            disp = disp & !k_ContextMenuBlacklist.Contains(action.GetType());
-
-                            if (disp)
-                            {
-//                              using (new GUILayout.HorizontalScope())
-                                {
-                                    //                                    GUILayout.Label(new GUIContent(action.icon), GUILayout.Height(18), GUILayout.Width(18));
-
-                                    GUI.enabled = action.enabled;
-//                                        && !action.hidden;
-
-                                    if (action is MenuToolToggle toggle)
-                                    {
-                                        GUILayout.Button(new GUIContent(toggle.menuTitle, toggle.tooltip.title), GUILayout.Height(18), GUILayout.ExpandWidth(true));
-                                    }
-                                    else
-                                    {
-                                        if (GUILayout.Button(new GUIContent(action.menuTitle, action.tooltip.summary)))
-                                        {
-                                            PopulateAction(action);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
