@@ -8,6 +8,9 @@ This is a replacement script for the tool window that was discontinued in ProBui
 
 https://github.com/sakana3/ProBuilderHelperMenu.git?path=package
 
+![image](https://github.com/user-attachments/assets/51430e8f-abd1-46c3-af6c-0e76709b619e)
+
+
 # How to use
 
 - Open window form Tools/ProBuilder/OpenHelperMenu
